@@ -1,0 +1,6 @@
+.idea
+Thumbs.db
+.env.*
+*/debug_toolbar
+*.log
+*.sqlite3
