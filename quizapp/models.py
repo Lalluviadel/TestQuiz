@@ -4,10 +4,11 @@ from logging import Logger
 from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
+from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
 from pytils.translit import slugify
-from django.db import models, transaction
+from django.core.exceptions import ValidationError
 
 logger: Logger = logging.getLogger(__name__)
 
@@ -85,12 +86,12 @@ class Question(models.Model):
     is_active = models.BooleanField(default=True, db_index=True, verbose_name="активен")
 
     right_answers = models.CharField(max_length=50, default='1,', verbose_name="правильный ответ/ответы")
-    answer_01 = models.CharField(max_length=150, default='default', verbose_name="ответ №1")
-    answer_02 = models.CharField(max_length=150, default='default', verbose_name="ответ №2")
-    answer_03 = models.CharField(max_length=150, default='default', verbose_name="ответ №3")
-    answer_04 = models.CharField(max_length=150, default='default', verbose_name="ответ №4")
+    answer_01 = models.CharField(max_length=150, blank=True, verbose_name="ответ №1")
+    answer_02 = models.CharField(max_length=150, blank=True, verbose_name="ответ №2")
+    answer_03 = models.CharField(max_length=150, blank=True, verbose_name="ответ №3")
+    answer_04 = models.CharField(max_length=150, blank=True, verbose_name="ответ №4")
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, )
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 
@@ -103,6 +104,38 @@ class Question(models.Model):
     def __str__(self):
         """Forms and returns a printable representation of the object."""
         return str(self.text)
+
+    def clean(self):
+        """Checking the values passed in the model field."""
+        self.right_answers_processing()
+
+    def right_answers_processing(self):
+        """Validating the values of the right answers field.
+        - only numbers in the range from 1 to the number of possible answers should be specified;
+        - all the answers cannot be right;
+        """
+        msg = "В правильных ответах к вопросу указывайте только цифры!"
+        try:
+            right_answers_no_whitespace = self.right_answers.replace(" ", "")
+            right_answers_only_int = [int(r_ans) for r_ans in right_answers_no_whitespace.split(',') if r_ans]
+
+            number_non_empty_answers = len([answer for answer in
+                                            [self.answer_01, self.answer_02, self.answer_03, self.answer_04]
+                                            if answer])
+
+            # we check that the number of each right answer is in the range
+            # between 0 and the number of possible answers
+            right_answers_check = all(map(lambda x: 1 <= x <= number_non_empty_answers, right_answers_only_int))
+            if not right_answers_check or not right_answers_only_int \
+                    or len(right_answers_only_int) >= number_non_empty_answers:
+                msg = "Проверьте количество и значение указанных правильных ответов!"
+                raise ValueError
+
+        except ValueError as err:
+            logger.info('An error was processed during right_answers checking')
+            raise ValidationError(
+                {'right_answers': msg}) from err
+
 
 class QuestionSet(BaseModel):
     """The model for the question set."""
