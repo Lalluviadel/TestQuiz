@@ -1,13 +1,13 @@
 from django.contrib import admin
-from django.contrib.admin.options import InlineModelAdmin
-from django.contrib.contenttypes.admin import GenericTabularInline, GenericStackedInline
+from django.contrib.contenttypes.admin import GenericStackedInline
 from django.forms import ModelForm, Textarea
+from django.utils.html import format_html
 
 from quizapp.models import Category, Question, QuestionSet
 
-
 admin.site.site_header = 'Админ-панель тестового задания для ИП Авдеев В.Ю. "'
 admin.site.site_title = 'Тестовое задание для ИП Авдеев В.Ю. "'
+
 
 class BigTextBodyForm(ModelForm):
     """A form for the question set admin panel that uses a more convenient widget for large text."""
@@ -23,16 +23,23 @@ class BigTextBodyForm(ModelForm):
 
 class CategoryAdmin(admin.ModelAdmin):
     """A class for working with the Category model in the admin panel."""
-    list_display = ('title', 'is_active')
+    list_display = ('title', 'is_active', 'view_questions_link',)
     search_fields = ('title',)
     list_filter = ('is_active',)
-    fields = (('title', 'is_active'), 'description', )
+    fields = (('title', 'is_active'), 'description',)
 
     def delete_queryset(self, request, queryset):
         """Defines the behavior when deleting a set.
         The object will not be deleted, but deactivated."""
         for item in queryset:
             item.delete()
+
+    def view_questions_link(self, obj: Category):
+        """Сreating a table list field with number of questions in this category."""
+        count = obj.question_set.count()
+        return format_html('<span>Кол-во вопросов: {}</span>', count)
+
+    view_questions_link.short_description = "Вопросов в категории"
 
 
 class QuestionInline(GenericStackedInline):
@@ -41,7 +48,7 @@ class QuestionInline(GenericStackedInline):
     model = Question
     form = BigTextBodyForm
     fields = ('text', ('category', 'is_active'),
-              ('answer_01', 'answer_02', 'answer_03', 'answer_04', ),
+              ('answer_01', 'answer_02', 'answer_03', 'answer_04',),
               'right_answers',)
     extra = 1
 
@@ -51,8 +58,9 @@ class QuestionSetAdmin(admin.ModelAdmin):
     list_display = ('title', 'is_active')
     search_fields = ('title',)
     list_filter = ('is_active',)
-    fields = (('title', 'is_active'),)
+    fields = (('title', 'is_active'), 'description', )
     inlines = [QuestionInline, ]
+
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(QuestionSet, QuestionSetAdmin)

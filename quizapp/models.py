@@ -140,6 +140,7 @@ class Question(models.Model):
 class QuestionSet(BaseModel):
     """The model for the question set."""
     questions = GenericRelation('Question')
+    description = models.TextField(blank=True, verbose_name="описание")
 
     class Meta:
         """Ordering questions according to their id."""

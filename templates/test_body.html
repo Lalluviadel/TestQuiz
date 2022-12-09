@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    {% if current_question == 'Stop' %}
+        <div class="container-fluid text-center text-adaptive">
+            <h1 class="mt-4 h1-title">Тестовый блок из <b class="oranged">{{ quantity }}</b> вопросов
+                закончен</h1>
+            <h3 class="mt-4 text-adaptive">Пройдите это испытание еще раз или выберите другой набор
+                вопросов</h3>
+
+            <div> Правильных ответов - <b class="oranged">{{ right_ans }}</b></div>
+            <div> Неправильных ответов - <b class="oranged">{{ wrong_ans }}</b></div>
+            <div> Процент правильных ответов - <b class="oranged">{{ percent_right }} %</b></div>
+        </div>
+
+    {% else %}
+        <div class="container-fluid text-center" id="test-catcher">
+            <div class="row">
+                <div class="col-11">
+                    <h1 class="mt-4 h1-title">Тестовый набор: <b class="oranged">{{ title }}</b></h1>
+                </div>
+            </div>
+            <div class="container-fluid mb-5 text-adaptive">
+                <div class="row flex-md-row pt-2 pb-2 justify-content-center">
+                    <h2 class="h1-title">Вопрос {{ counter }} из {{ quantity }}</h2>
+                </div>
+                <div class="row main p-1 border border-grey mt-1">
+                    <div class="col-lg-12 mt-3 form-adaptive-width">
+                        <div class="form-adaptive-width text-wrap text-justify text-break">
+                            {{ current_question.text }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row main p-1 border border-grey mt-1">
+
+                    <form method="get" value="{{ item.id }}"
+                          action="{% url 'questions:answers' current_question.id %}"
+                          class="answer_catcher w-100">
+                        {% csrf_token %}
+                        <fieldset id="answers">
+                            <div class="row main p-3 mt-1 text-wrap text-justify text-break">
+
+                                <div class="col-lg-6">
+                                    {% if current_question.answer_01 %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" name="answers1" type="checkbox"
+                                                   id="answer_01"
+                                                   value="{{ current_question.answer_01 }}" checked>
+                                            <label class="form-check-label" for="answer_01">
+                                                {{ current_question.answer_01 }}
+                                            </label>
+                                        </div>
+                                    {% endif %}
+                                    {% if current_question.answer_02 %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="answers2"
+                                                   id="answer_02"
+                                                   value="{{ current_question.answer_02 }}">
+                                            <label class="form-check-label" for="answer_02">
+                                                {{ current_question.answer_02 }}
+                                            </label>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-lg-6">
+                                    {% if current_question.answer_03 %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="answers3"
+                                                   id="answer_03"
+                                                   value="{{ current_question.answer_03 }}">
+                                            <label class="form-check-label" for="answer_03">
+                                                {{ current_question.answer_03 }}
+                                            </label>
+                                        </div>
+                                    {% endif %}
+                                    {% if current_question.answer_04 %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="answers4"
+                                                   id="answer_04"
+                                                   value="{{ current_question.answer_04 }}">
+                                            <label class="form-check-label" for="answer_04">
+                                                {{ current_question.answer_04 }}
+                                            </label>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-lg-12 in-center mt-3">
+                                    <button id="mybtn" type="submit" class="btn-block btn-lg btn-orange"
+                                    >Ответить!
+                                    </button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#mybtn').click(function () {
+                at_least_one_checked = $("input[type=checkbox]:checked").length;
+
+                if (!at_least_one_checked) {
+                    alert("Вы должны выбрать хотя бы один ответ.");
+                    return false;
+                }
+
+            });
+        });
+    </script>
+{% endblock %}

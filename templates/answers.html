@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="container-fluid text-center text-adaptive" id="test-catcher">
+        <h1 class="mt-4 h1-title">Тестовый набор: <b class="oranged">{{ question_set_title }}</b></h1>
+        <div class="row main p-1 mt-1 justify-content-center">
+            <h2 class="h1-title">Ответ на вопрос:</h2>
+        </div>
+        <div class="row main p-1 mt-1 justify-content-center">
+            <h5 class="h1-title">{{ current_question.text }}</h5>
+        </div>
+        <div class="row main p-1 mt-1 justify-content-center">
+            {% if guessed %}
+                <div class="col-lg-12 m-1 guessed">
+                    <h3>Верно!</h3>
+                </div>
+            {% else %}
+                <div class="col-lg-12 m-1 wrong">
+                    <h3>Ошибка!</h3>
+                </div>
+            {% endif %}
+            <div class="col-md-6 border border-grey">
+                <div class="text-center">Ваш ответ:</div>
+                <div class="text-wrap text-justify text-break font-xl text-adaptive">
+                    <ul>{% for chosen_answer in chosen_answers %}
+                    <li>{{ chosen_answer }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 border border-grey">
+                <div class="text-center">Правильный ответ:</div>
+                <div class="text-wrap text-justify text-break font-xl text-adaptive">
+                <ul>
+                    {% for right_answer in right_answers %}
+                        <li>{{ right_answer }}</li>
+                    {% endfor %}
+                </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row main p-1 mt-1 justify-content-center">
+            <div class="col-md-6">
+                <a class='btn btn-primary btn-block m-1' href='{% url 'index' %}'>Прервать</a>
+            </div>
+            <div class="col-md-6">
+                <a class='btn btn-outline-dark btn-orange  btn-block m-1'
+                   href='{% url 'quizapp:test_body' question_set_slug %}'>Дальше!</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
