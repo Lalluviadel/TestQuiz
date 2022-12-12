@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'quizapp',
     'users',
+    'cards_app',
     # 'south',
 ]
 
