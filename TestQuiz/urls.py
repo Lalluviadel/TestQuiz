@@ -9,5 +9,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', MainPageView.as_view(), name='index'),
     path('questions/', include('quizapp.urls', namespace='quizapp')),
-    # path('users/', include('users.urls', namespace='users')),
+    path('users/', include('users.urls', namespace='users')),
 ]

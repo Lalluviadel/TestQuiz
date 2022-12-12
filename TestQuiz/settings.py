@@ -6,13 +6,15 @@ from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 
+load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-^$=8l=l-kn_78l8_gg*7bzehshsucz$b3s+i=ea+izqvh5s(d_'
+SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -22,6 +24,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'quizapp',
+    'users',
+    # 'south',
 ]
 
 MIDDLEWARE = [
@@ -87,6 +91,15 @@ USE_L10N = True
 
 USE_TZ = True
 
+AUTH_USER_MODEL = 'users.QuizUser'
+LOGIN_URL = '/users/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGIN_ERROR_URL = '/'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (BASE_DIR / 'static',)
 
@@ -94,7 +107,12 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DOMAIN_NAME = 'http://127.0.0.1:8000'
 
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = f'{BASE_DIR}/emails'
 
 LEVEL = 'DEBUG'
 
@@ -147,3 +165,7 @@ LOGGING = {
         },
     }
 }
+
+# SOUTH_DATABASE_ADAPTERS = {
+#     'default': "south.db.sqlite3",
+# }
