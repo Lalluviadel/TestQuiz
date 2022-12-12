@@ -1,0 +1,28 @@
+"""Sets associations of users application urls with their views.
+
+Attributes:
+
+    * app_name (str): the name of a specific web application used in different parts of the overall structure.
+    * urlpatterns(list): a list of paths that determine the behavior of a web application
+                         when using the urls specified in the list.
+"""
+from django.urls import path, reverse_lazy
+
+from users.views import UserLoginView, RegisterView, UserLogoutView, Verify, \
+    FailedAuthenticationView, UserPasswordResetView, MyPasswordResetCompleteView, \
+    MyPasswordResetConfirmView
+
+app_name = 'users'
+urlpatterns = [
+    path('login/', UserLoginView.as_view(), name='login'),
+    path('logout/', UserLogoutView.as_view(), name='logout'),
+
+    path('register/', RegisterView.as_view(), name='register'),
+    path('verify/<str:email>/<str:activation_key>/', Verify.as_view(), name='verify'),
+    path('attempt_failed/<str:error>', FailedAuthenticationView.as_view(), name='failed'),
+
+    path('password_reset/', UserPasswordResetView.as_view(), name='password_reset'),
+    path('password_reset_confirm/<uidb64>/<token>/', MyPasswordResetConfirmView.as_view(success_url=reverse_lazy(
+        'users:password_reset_complete')), name='password_reset_confirm'),
+    path('reset/done/', MyPasswordResetCompleteView.as_view(), name='password_reset_complete'),
+]

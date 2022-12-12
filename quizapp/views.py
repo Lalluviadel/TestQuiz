@@ -1,20 +1,10 @@
 import re
 
-from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
-from django.views.generic.base import ContextMixin
 
+from quizapp.mixins import TitleMixin, AuthorizedOnlyDispatchMixin
 from quizapp.models import QuestionSet, Question
-
-
-class TitleMixin(ContextMixin):
-    title = ''
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = self.title
-        return context
 
 
 class MainPageView(ListView, TitleMixin):
@@ -35,8 +25,7 @@ class MainPageView(ListView, TitleMixin):
         return QuestionSet.objects.filter(is_active=True).exclude(questions__isnull=True)
 
 
-# class TestProcessView(DetailView, AuthorizedOnlyDispatchMixin):
-class TestProcessView(DetailView):
+class TestProcessView(DetailView, AuthorizedOnlyDispatchMixin):
     """View for consistently get the current question from the set and its possible answers.
     """
     model = QuestionSet
@@ -80,8 +69,7 @@ class TestProcessView(DetailView):
             return render(request, 'test_body.html', context=context)
 
 
-# class AnswerQuestion(DetailView, AuthorizedOnlyDispatchMixin):
-class AnswerQuestion(DetailView):
+class AnswerQuestion(DetailView, AuthorizedOnlyDispatchMixin):
     """View to check the correctness of the answer and the number
     of his correct and incorrect answers stored in the session."""
     model = Question
@@ -124,7 +112,7 @@ class AnswerQuestion(DetailView):
 
             quantity = request.session['context']['quantity']
             right_ans = request.session['context']['right_ans']
-            request.session['context']['percent_right'] = 100/quantity * right_ans
+            request.session['context']['percent_right'] = 100 / quantity * right_ans
         else:
             request.session['context']['wrong_ans'] += 1
         request.session.modified = True
