@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'quizapp',
     'users',
+    # 'south',
 ]
 
 MIDDLEWARE = [
@@ -164,3 +165,7 @@ LOGGING = {
         },
     }
 }
+
+# SOUTH_DATABASE_ADAPTERS = {
+#     'default': "south.db.sqlite3",
+# }

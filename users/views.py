@@ -20,13 +20,15 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import TemplateView, FormView
 
-from TestQuiz.settings import DOMAIN_NAME, EMAIL_HOST_USER
 from quizapp.views import TitleMixin
 from users.forms import UserLoginForm, UserRegisterForm, UserPasswordResetForm
 from users.models import QuizUser
 
 logger = logging.getLogger(__name__)
 
+from django.conf import settings
+
+DOMAIN_NAME, EMAIL_HOST_USER = settings.DOMAIN_NAME, settings.EMAIL_HOST_USER
 
 class UserLoginView(LoginView, TitleMixin):
     """A view for authorization."""

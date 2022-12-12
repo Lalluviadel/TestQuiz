@@ -1,6 +1,9 @@
 .idea
 Thumbs.db
-.env.*
+#.env.*
 */debug_toolbar
 *.log
 *.sqlite3
+Envs
+venv
+settings_local.py
