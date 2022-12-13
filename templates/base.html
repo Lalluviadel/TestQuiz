@@ -29,12 +29,12 @@
                aria-haspopup="true" aria-expanded="false"><i class="fas fa-user fa-fw blacked"></i></a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
 
-            {% if user.is_authenticated %}
-                <a class="dropdown-item" href="{% url 'users:logout' %}">Выйти из профиля</a>
-            {% else %}
-                <a class="dropdown-item" href="{% url 'users:register' %}">Регистрация</a>
-                <a class="dropdown-item" href="{% url 'users:login' %}">Авторизация</a>
-            {% endif %}
+                {% if user.is_authenticated %}
+                    <a class="dropdown-item" href="{% url 'users:logout' %}">Выйти из профиля</a>
+                {% else %}
+                    <a class="dropdown-item" href="{% url 'users:register' %}">Регистрация</a>
+                    <a class="dropdown-item" href="{% url 'users:login' %}">Авторизация</a>
+                {% endif %}
 
             </div>
         </li>
@@ -62,6 +62,18 @@
                             <i class="fas fa-boxes oranged"></i>
                         </div>
                         Наборы тестов
+                    </a>
+                    <a class="nav-link" href="{% url 'cards:cards_list' %}">
+                        <div class="sb-nav-link-icon">
+                            <i class="fas fa-boxes oranged"></i>
+                        </div>
+                        Бонусные карты
+                    </a>
+                    <a class="nav-link" href="{% url 'cards:cards_generator' %}">
+                        <div class="sb-nav-link-icon">
+                            <i class="fas fa-boxes oranged"></i>
+                        </div>
+                        Генератор карт
                     </a>
 
                     {% if user.is_staff %}

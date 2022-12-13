@@ -126,7 +126,11 @@ div.thumbnail {
 }
 
 .grey-background {
-    background-color: #c2aa8d;
+    background-color: darkgrey;
+}
+
+.grey-background {
+    background-color: darkgrey;
 }
 
 .font-small {

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid text-center">
+        <h1 class="mt-4">{{ title }}</h1>
+        <a class='btn btn-primary all-width btn-block'
+           href='{% url 'cards:search-options' %}'>Поиск по картам</a>
+        {% if error_checking %}
+            <span>{{ error_checking }}</span>
+        {% endif %}
+        {% for card in card_list %}
+            <div class="row main p-1 border border-grey mt-1 mb-4
+            {% if card.card_status == 'DE' %}grey-background
+            {% elif card.card_status == 'EX' %}bg-warning{% endif %}
+            ">
+                <div class="col-12">
+                    <h2 class="oranged m-2">{{ card.title }}</h2>
+                </div>
+                <div class="col-md-2 mt-3">
+                    <div class="m-2">
+                        Серия карты:
+                    </div>
+                    <div class="m-2">
+                        Номер карты:
+                    </div>
+                </div>
+                <div class="col-md-2 mt-3">
+                    <h3>
+                        {% if card.card_series %}
+                            {{ card.card_series }}
+                        {% else %} -
+                        {% endif %}
+                    </h3>
+                    <h3 class="oranged mt-1">{{ card.card_number }}</h3>
+                </div>
+                <div class="col-md-2 mt-3">
+                    <div class="mt-2">
+                        <p class="small">Дата выпуска: </p>
+                    </div>
+                    <div class="mt-2">
+                        <p class="small">Дата окончания действия: </p>
+                    </div>
+                </div>
+                <div class="col-md-2 mt-3 small">
+                    <div class="mt-2">
+                        {{ card.release_date | date }}
+                    </div>
+                    <div class="mt-2">
+                        {{ card.expiration_date | date }}
+                    </div>
+                </div>
+                <div class="col-md-2 mt-3">
+                    Статус:
+                    {{ card.get_card_status_display }}
+                </div>
+                <div class="col-md-2 mt-3">
+                    <div class="container-fluid pt-4 pb-3 text-center">
+                        <div class="row justify-content-center align-bottom">
+                            <a class='btn btn-primary all-width'
+                               href='{{ card.get_absolute_url }}'>Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mt-5">
+            <li class="page-item {% if not page_obj.has_previous %} disabled {% endif %}">
+                <a class="page-link font-xl {% if page_obj.has_previous %} oranged {% endif %}"
+                   href="{% if page_obj.has_previous %} ?page={{ page_obj.previous_page_number }}
+                               {% else %} # {% endif %}"
+                   tabindex="-1" aria-disabled="true">Previous</a>
+            </li>
+            {% for page in page_obj.paginator.page_range %}
+                <li class="page-item"><a class="page-link oranged font-xl"
+                                         href="?page={{ page }}">{{ page }}</a></li>
+            {% endfor %}
+            <li class="page-item {% if not page_obj.has_next %} disabled {% endif %}">
+                <a class="page-link font-xl {% if page_obj.has_next %} oranged {% endif %}"
+                   href="{% if page_obj.has_next %} ?page={{ page_obj.next_page_number }}
+                                     {% else %} # {% endif %}">Next</a>
+            </li>
+        </ul>
+    </nav>
+
+{% endblock %}

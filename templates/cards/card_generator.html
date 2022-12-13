@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="container-fluid text-left">
+        <h1 class="mt-4">{{ title }}</h1>
+        <div class="row main p-1 border border-grey mt-1 mb-4">
+
+            <form action="#" class="wigth-100" method="post">
+                {% csrf_token %}
+                <div class="col-12 mt-2">
+
+                    <div class="row mt-2">
+                        <div class="col-4">Серия карт:</div>
+                        <div class="col-8"><input type="text" name="card_series" required></div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-4">Количество карт:</div>
+                        <div class="col-8"><input type="number" name="quantity" required max="100"></div>
+                    </div>
+
+                </div>
+                <div class="col-12 mt-2">
+                    <div class="row">
+                        <div class="col-4">Срок окончания активности:</div>
+                        <div class="col-8">
+                            <select name="exp_date">
+                                <option selected value="year">1 год</option>
+                                <option value="half_year">6 месяцев</option>
+                                <option value="month">1 месяц</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mt-2 d-flex justify-content-center">
+                    <button type="submit" class="btn-warning m-2">
+                        Сгенерировать карты
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

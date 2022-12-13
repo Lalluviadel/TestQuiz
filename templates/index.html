@@ -3,7 +3,7 @@
 
 {% block content %}
     <div class="container-fluid text-center">
-        <h1 class="mt-4">Категории тестов</h1>
+        <h1 class="mt-4">{{ title }}</h1>
         {% for question_set in questionset_list %}
             <div class="row main p-1 border border-grey mt-1">
                 <div class="col-12">
@@ -25,5 +25,25 @@
             </div>
         {% endfor %}
     </div>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mt-5">
+            <li class="page-item {% if not page_obj.has_previous %} disabled {% endif %}">
+                <a class="page-link font-xl {% if page_obj.has_previous %} oranged {% endif %}"
+                   href="{% if page_obj.has_previous %} ?page={{ page_obj.previous_page_number }}
+                               {% else %} # {% endif %}"
+                   tabindex="-1" aria-disabled="true">Previous</a>
+            </li>
+            {% for page in page_obj.paginator.page_range %}
+                <li class="page-item"><a class="page-link oranged font-xl"
+                                         href="?page={{ page }}">{{ page }}</a></li>
+            {% endfor %}
+            <li class="page-item {% if not page_obj.has_next %} disabled {% endif %}">
+                <a class="page-link font-xl {% if page_obj.has_next %} oranged {% endif %}"
+                   href="{% if page_obj.has_next %} ?page={{ page_obj.next_page_number }}
+                                     {% else %} # {% endif %}">Next</a>
+            </li>
+        </ul>
+    </nav>
 
 {% endblock %}
