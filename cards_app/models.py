@@ -37,7 +37,7 @@ class Card(BaseModel):
 
     class Meta:
         """Ordering cards according to their id."""
-        ordering = ('expiration_date', 'id')
+        ordering = ('-expiration_date', 'id')
         verbose_name = 'Карта'
         verbose_name_plural = 'Карты'
 

@@ -12,6 +12,7 @@ class MainPageView(ListView, TitleMixin):
     model = QuestionSet
     template_name = 'index.html'
     title = 'Наборы тестов'
+    paginate_by = 5
 
     def get_queryset(self):
         """

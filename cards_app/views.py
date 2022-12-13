@@ -24,6 +24,7 @@ class CardListView(ListView, TitleMixin):
     model = Card
     template_name = 'cards/cards_list.html'
     title = 'Список карт'
+    paginate_by = 5
 
     def get_queryset(self):
         """Start checking whether the status of expired cards needs to be changed.
@@ -80,7 +81,9 @@ class CardSearchView(ListView, TitleMixin):
 
             return render(request, 'cards/cards_list.html', context=context)
         except Exception as err:
-            logger.info('Exception during processing cards search conditions: %s', err.__cause__)
+            template = "An exception of type {0} occurred during processing cards search conditions. Arguments:\n{1!r}"
+            message = template.format(type(err).__name__, err.args)
+            logger.info(message)
             context = {
                 'error_checking': 'Извините, при поиске произошла ошибка. Пожалуйста, попробуйте еще раз',
                 'title': self.title,
@@ -91,14 +94,14 @@ class CardSearchView(ListView, TitleMixin):
     def search_date_conditions_processing(self, datetime_str: str):
         """
         Processes and returns datetime objects of the search start and end dates (search time range).
-        If the date is not set by the user, returns datetime objects: 1900.01.01 and 1900.01.01.
+        If the date is not set by the user, returns datetime objects: 1900.01.01 and 2050.01.01.
         """
         if datetime_str:
             start_date = self.datetime_processing(datetime_str)
             end_date = start_date + datetime.timedelta(days=1)
         else:
             start_date = self.datetime_processing('1900-01-01')
-            end_date = self.datetime_processing('1900-01-01')
+            end_date = self.datetime_processing('2050-01-01')
         return start_date, end_date
 
     @staticmethod
@@ -177,7 +180,9 @@ class CardGeneratorView(TitleMixin, ListView):
                 new_cards_queryset |= Card.objects.filter(id=instance.id)
 
         except Exception as err:
-            logger.info('Exception during processing cards generator conditions: %s', err.__cause__)
+            template = "An exception of type {0} occurred processing cards generator conditions. Arguments:\n{1!r}"
+            message = template.format(type(err).__name__, err.args)
+            logger.info(message)
             context = {
                 'error_checking': 'Извините, при генерации карт произошла ошибка. Пожалуйста, попробуйте еще раз',
                 'title': self.title,
