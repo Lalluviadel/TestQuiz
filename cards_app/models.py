@@ -28,7 +28,10 @@ class Card(BaseModel):
     card_series = models.CharField(max_length=20, blank=True, verbose_name='серия карты')
     card_number = models.CharField(max_length=20, verbose_name='номер карты')
     release_date = models.DateTimeField(default=timezone.now, verbose_name="дата выпуска карты")
-    expiration_date = models.DateTimeField(blank=True, null=True, verbose_name="дата окончания действия")
+    expiration_date = models.DateTimeField(default=timezone.datetime(year=2050,
+                                                                     month=1,
+                                                                     day=1
+                                                                     ), verbose_name="дата окончания действия")
     card_status = models.CharField(choices=STATUS_CHOICES, verbose_name='статус карты', max_length=2,
                                    default=DEACTIVATED, db_index=True)
 

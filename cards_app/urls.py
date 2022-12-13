@@ -9,9 +9,10 @@ Attributes:
 
 from django.urls import path
 
-from cards_app.views import CardListView
+from cards_app.views import CardListView, CardSearchView
 
 app_name = 'cards'
 urlpatterns = [
     path('', CardListView.as_view(), name='cards_list'),
+    path('search-options', CardSearchView.as_view(), name='search-options'),
 ]

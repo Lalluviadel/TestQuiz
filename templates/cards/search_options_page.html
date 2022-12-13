@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid text-center">
+        <h1 class="mt-4">{{ title }}</h1>
+        <span>
+            Найдите нужную карту, выставив требуемые условия для поиска
+        </span>
+        <form action="{% url 'cards:search-options' %}" method="post">
+            {% csrf_token %}
+        <div class="row main p-1 border border-grey mt-4 mb-4 text-left p-2">
+            <div class="col-6 mt-2">
+                <div class="row">
+                    <div class="col-4">Серия:</div>
+                    <div class="col-8"><input type="text" name="card_series" placeholder="Введите серию"></div>
+                </div>
+            </div>
+            <div class="col-6 mt-2">
+                <div class="row">
+                    <div class="col-4">Номер:</div>
+                    <div class="col-8"><input type="text" name="card_number" placeholder="Введите номер"></div>
+                </div>
+            </div>
+            <div class="col-6 mt-2">
+                <div class="row">
+                    <div class="col-4">Дата выпуска:</div>
+                    <div class="col-8"><input type="date" name="start_date"></div>
+                </div>
+            </div>
+            <div class="col-6 mt-2">
+                <div class="row">
+                    <div class="col-4">Дата окончания:</div>
+                    <div class="col-8"><input type="date" name="expired_date"></div>
+                </div>
+            </div>
+            <div class="col-6 mt-2">
+                <div class="row">
+                    <div class="col-4">Статус:</div>
+                    <div class="col-8">
+                        <select name="status">
+                            <option selected value="">не выбран</option>
+                            <option value="AC">активирована</option>
+                            <option value="DE">деактивирована</option>
+                            <option value="EX">просрочена</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mt-2">
+                <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-search oranged"> Поиск по картам</i></button>
+{#                <a class='btn btn-primary all-width btn-block'#}
+{#                   href='{% url 'cards:search-options' %}'>Поиск по картам</a>#}
+            </div>
+        </div>
+        </form>
+    </div>
+{% endblock %}
