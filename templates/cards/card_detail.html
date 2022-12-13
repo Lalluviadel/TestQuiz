@@ -36,8 +36,20 @@
                 </div>
             </div>
             <div class="col-4 mt-3">
-                <a class='btn btn-primary btn-block all-width m-2' href='#'>Деактивировать карту</a>
-                <a class='btn btn-primary btn-block all-width m-2' href='#'>Удалить карту</a>
+                <form action="{% url 'cards:card_delete' card.slug %}" method="post">
+                    {% csrf_token %}
+                    <input name="no_delete" hidden>
+                    <button type="submit" class="btn-block btn-warning m-2"
+                            {% if card.card_status == 'EX' %}disabled{% endif %}>
+                        {% if card.card_status == 'AC' %}Деактивировать{% else %}Активировать{% endif %}
+                    </button>
+                </form>
+                <form action="{% url 'cards:card_delete' card.slug %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-block btn-primary m-2">
+                        Удалить карту
+                    </button>
+                </form>
             </div>
         </div>
 

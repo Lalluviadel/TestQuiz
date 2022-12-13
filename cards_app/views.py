@@ -3,11 +3,13 @@ import logging
 from logging import Logger
 
 from django.db.models import Q
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.urls import reverse_lazy, reverse
+from django.views.generic import ListView, DetailView, DeleteView
 
 from cards_app.models import Card
-from quizapp.mixins import TitleMixin
+from quizapp.mixins import TitleMixin, AuthorizedOnlyDispatchMixin
 
 logger: Logger = logging.getLogger(__name__)
 
@@ -17,6 +19,9 @@ class CardListView(ListView, TitleMixin):
     model = Card
     template_name = 'cards/cards_list.html'
     title = 'Список карт'
+
+    def get_queryset(self):
+        return Card.objects.filter(is_active=True)
 
 class CardSearchView(ListView, TitleMixin):
     """View to display the search results for cards (when using the site search bar).
@@ -80,9 +85,36 @@ class CardSearchView(ListView, TitleMixin):
         return datetime.datetime.strptime(datetime_str, '%Y-%m-%d')
 
 
-class CardDetail(TitleMixin, DetailView):
+class CardDetail(TitleMixin, DetailView, AuthorizedOnlyDispatchMixin):
     """View to viewing a card profile with its purchase history."""
     title = 'Профиль карты'
     model = Card
     template_name = 'cards/card_detail.html'
     slug_url_kwarg = 'card_slug'
+
+class CardDeleteView(DeleteView, AuthorizedOnlyDispatchMixin):
+    """View to card delete and activate/deactivate."""
+    slug_url_kwarg = 'card_slug'
+    model = Card
+    template_name = 'cards/card_detail.html'
+    success_url = reverse_lazy('cards:cards_list')
+
+    def delete(self, request, *args, **kwargs):
+        """Performs complete deletion or activation/deactivation of the object
+        in accordance with the specified mode of action.
+        """
+        item = self.get_object()
+        if 'no_delete' in request.POST:
+            if item.card_status != 'EX':
+                item.card_status = 'AC' if item.card_status == 'DE' else 'DE'
+                item.save()
+        else:
+            item.is_active = not item.is_active
+            item.save()
+
+    def post(self, request, *args, **kwargs):
+        """Starts the process of deleting or activating/deactivating category.
+        When enabled ajax, returns data for an asynchronous web request.
+        """
+        self.delete(request, *args, **kwargs)
+        return HttpResponseRedirect(reverse('cards:cards_list'))

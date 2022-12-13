@@ -9,11 +9,12 @@ Attributes:
 
 from django.urls import path
 
-from cards_app.views import CardListView, CardSearchView, CardDetail
+from cards_app.views import CardListView, CardSearchView, CardDetail, CardDeleteView
 
 app_name = 'cards'
 urlpatterns = [
     path('', CardListView.as_view(), name='cards_list'),
     path('search-options', CardSearchView.as_view(), name='search-options'),
     path('detail/<slug:card_slug>/', CardDetail.as_view(), name='card_read'),
+    path('cards-delete/<slug:card_slug>/', CardDeleteView.as_view(), name='card_delete'),
 ]
