@@ -1,11 +1,15 @@
 import datetime
 import logging
+import random
+import time
 from logging import Logger
 
+from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.views.generic import ListView, DetailView, DeleteView
 
 from cards_app.models import Card
@@ -15,13 +19,31 @@ logger: Logger = logging.getLogger(__name__)
 
 
 class CardListView(ListView, TitleMixin):
-    """View for the card list."""
+    """View for the card list.
+    Сhecking whether the status of expired cards needs to be changed."""
     model = Card
     template_name = 'cards/cards_list.html'
     title = 'Список карт'
 
     def get_queryset(self):
+        """Start checking whether the status of expired cards needs to be changed.
+        Returns a queryset of all active cards.
+        """
+        self.processing_exp_date_cards()
         return Card.objects.filter(is_active=True)
+
+    @staticmethod
+    def processing_exp_date_cards():
+        """Сhecking whether the status of expired cards needs to be changed."""
+        exp_date_cards_ids = list(Card.objects.filter(expiration_date__lte=timezone.now()).
+                                  exclude(card_status='EX').
+                                  values_list('id', flat=True))
+        if exp_date_cards_ids:
+            for card_id in exp_date_cards_ids:
+                card = Card.objects.get(id=card_id)
+                card.card_status = 'EX'
+                card.save()
+
 
 class CardSearchView(ListView, TitleMixin):
     """View to display the search results for cards (when using the site search bar).
@@ -39,7 +61,6 @@ class CardSearchView(ListView, TitleMixin):
             searсh_conditions = [request.POST.get(i) for i in search_options if i in request.POST]
             release_start_date, release_end_date = self.search_date_conditions_processing(searсh_conditions[2])
             expiration_start_date, expiration_end_date = self.search_date_conditions_processing(searсh_conditions[3])
-
 
             query = Card.objects.filter(Q(card_series__icontains=searсh_conditions[0])
                                         & Q(card_number__icontains=searсh_conditions[1])
@@ -59,13 +80,14 @@ class CardSearchView(ListView, TitleMixin):
 
             return render(request, 'cards/cards_list.html', context=context)
         except Exception as err:
-            logger.info('Exception during processing cards search condition: %s', err)
+            logger.info('Exception during processing cards search conditions: %s', err.__cause__)
             context = {
                 'error_checking': 'Извините, при поиске произошла ошибка. Пожалуйста, попробуйте еще раз',
                 'title': self.title,
             }
 
             return render(request, 'cards/cards_list.html', context=context)
+
     def search_date_conditions_processing(self, datetime_str: str):
         """
         Processes and returns datetime objects of the search start and end dates (search time range).
@@ -91,6 +113,7 @@ class CardDetail(TitleMixin, DetailView, AuthorizedOnlyDispatchMixin):
     model = Card
     template_name = 'cards/card_detail.html'
     slug_url_kwarg = 'card_slug'
+
 
 class CardDeleteView(DeleteView, AuthorizedOnlyDispatchMixin):
     """View to card delete and activate/deactivate."""
@@ -118,3 +141,53 @@ class CardDeleteView(DeleteView, AuthorizedOnlyDispatchMixin):
         """
         self.delete(request, *args, **kwargs)
         return HttpResponseRedirect(reverse('cards:cards_list'))
+
+
+class CardGeneratorView(TitleMixin, ListView):
+    """View to card generating in accordance with the specified requirements."""
+    title = 'Сгенерировать карты'
+    template_name = 'cards/card_generator.html'
+    model = Card
+
+    def post(self, request, *args, **kwargs):
+        """
+        Gets the conditions for generating new cards. Processes the received data.
+        Create cards according to the conditions.
+        Switching to the page with the list of generated cards.
+        """
+        try:
+            new_cards_queryset = Card.objects.none()
+
+            card_series = request.POST.get('card_series')
+            quantity = int(request.POST.get('quantity'))
+            exp_date = request.POST.get('exp_date')
+
+            now = timezone.now()
+            exp_date_map = {
+                'year': now + relativedelta(years=1),
+                'half_year': now + relativedelta(months=6),
+                'month': now + relativedelta(months=1),
+            }
+
+            for number in range(quantity):
+                card_number = str(time.time()).split('.')[1]
+                instance = Card.objects.create(title=f'Card_{number + 1}_{card_number}', card_series=card_series,
+                                               card_number=card_number, expiration_date=exp_date_map[exp_date],
+                                               card_status=random.choice(['DE', 'AC']))
+                new_cards_queryset |= Card.objects.filter(id=instance.id)
+
+        except Exception as err:
+            logger.info('Exception during processing cards generator conditions: %s', err.__cause__)
+            context = {
+                'error_checking': 'Извините, при генерации карт произошла ошибка. Пожалуйста, попробуйте еще раз',
+                'title': self.title,
+            }
+
+            return render(request, 'cards/cards_list.html', context=context)
+
+        context = {
+            'title': 'Сгенерированные вами карты',
+            'card_list': new_cards_queryset,
+        }
+
+        return render(request, 'cards/cards_list.html', context=context)
