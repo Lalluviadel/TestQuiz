@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid text-left">
+        <h1 class="mt-4">{{ title }} {{ card.title }}</h1>
+        <div class="row main p-1 border border-grey mt-1 mb-4">
+            <div class="col-8 mt-3">
+                <div class="row">
+                    <div class="col-6">Серия</div>
+                    <div class="col-6">{{ card.card_series }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6">Номер</div>
+                    <div class="col-6">{{ card.card_number }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6">Дата выпуска</div>
+                    <div class="col-6">{{ card.release_date | date }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6">Дата окончания активности</div>
+                    <div class="col-6">{{ card.expiration_date | date }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6">Дата последнего использования</div>
+                    <div class="col-6"></div>
+                </div>
+                <div class="row">
+                    <div class="col-6">Общая сумма</div>
+                    <div class="col-6"></div>
+                </div>
+                <div class="row">
+                    <div class="col-6">Статус</div>
+                    <div class="col-6">{{ card.get_card_status_display }}</div>
+                </div>
+            </div>
+            <div class="col-4 mt-3">
+                <a class='btn btn-primary btn-block all-width m-2' href='#'>Деактивировать карту</a>
+                <a class='btn btn-primary btn-block all-width m-2' href='#'>Удалить карту</a>
+            </div>
+        </div>
+
+        <h2>История покупок с использованием данной карты</h2>
+
+        <div class="table-responsive">
+            <table class="table table-bordered wigth-100 text-center" id="dataTable">
+                <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Время</th>
+                    <th>Сумма</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for order in card.order_set.all %}
+                    <tr>
+                        <td class="col-4 text-left item-on-page">
+                            {{ order.use_time | date }}
+                        </td>
+                        <td class="col-4 text-left">
+                            {{ order.use_time | time }}
+                        </td>
+                        <td class="col-4">
+                            {{ order.order_amount }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

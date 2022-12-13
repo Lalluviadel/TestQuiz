@@ -78,3 +78,11 @@ class CardSearchView(ListView, TitleMixin):
     def datetime_processing(datetime_str: str):
         """Gets a string, returns a datetime object."""
         return datetime.datetime.strptime(datetime_str, '%Y-%m-%d')
+
+
+class CardDetail(TitleMixin, DetailView):
+    """View to viewing a card profile with its purchase history."""
+    title = 'Профиль карты'
+    model = Card
+    template_name = 'cards/card_detail.html'
+    slug_url_kwarg = 'card_slug'

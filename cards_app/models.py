@@ -46,6 +46,27 @@ class Card(BaseModel):
         """
         super().save(*args, slugified_field=self.title, **kwargs)
 
-    def get_absolute_url(self, urlpattern_name='card_read'):
+    def get_absolute_url(self, urlpattern_name='cards:card_read'):
         """Returns formed url for the object."""
         return super().get_absolute_url(urlpattern_name=urlpattern_name)
+
+
+class Order(models.Model):
+    """The model for the order."""
+
+    create_time = models.DateTimeField(default=timezone.now, verbose_name="время создания")
+    update_time = models.DateTimeField(default=timezone.now, verbose_name="время изменения")
+    use_time = models.DateTimeField(default=timezone.now, db_index=True, verbose_name="время использования карты")
+    is_active = models.BooleanField(default=True, db_index=True, verbose_name="активен")
+    order_amount = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="сумма покупки")
+    card_used = models.ForeignKey(Card, to_field='title', on_delete=models.CASCADE,
+                                  verbose_name="использованная карта")
+
+    class Meta:
+        ordering = ['-use_time']
+        verbose_name = 'Покупка по карте'
+        verbose_name_plural = 'Покупки по карте'
+
+    def __str__(self):
+        """Forms and returns a printable representation of the object."""
+        return f'Покупка с картой {self.card_used} | {self.use_time.date()} | {self.order_amount} руб.'
